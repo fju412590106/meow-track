@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+  <title>MacroTrack — Calorie &amp; Macro Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+/* ============================================================
+   Macro Tracker — warm & friendly design system
+   ============================================================ */
+
+:root {
+  /* Surfaces & ink */
+  --bg:        #FBF5EE;   /* warm cream */
+  --bg-2:      #F4EADF;   /* slightly deeper cream for wells */
+  --surface:   #FFFFFF;
+  --ink:       #3A322C;   /* warm near-black */
+  --ink-soft:  #6E635A;
+  --muted:     #A2978C;
+  --line:      #ECE2D6;   /* hairline */
+  --line-2:    #E2D6C7;
+
+  /* Brand / calories */
+  --accent:    #F26B4E;   /* coral */
+  --accent-d:  #E2563A;
+  --accent-wash:#FDE9E2;
+
+  /* Macro hues (soft & friendly, distinct) */
+  --protein:   #8E6FC9;   --protein-wash:#EDE6F8;
+  --carbs:     #EBA235;   --carbs-wash:  #FBEFD7;
+  --fat:       #3FAE96;   --fat-wash:    #DCF1EC;
+  --water:     #4FA3D9;   --water-wash:  #E0F0FB;
+
+  /* Geometry */
+  --r-xl: 28px;
+  --r-lg: 22px;
+  --r-md: 16px;
+  --r-sm: 11px;
+  --shadow:    0 1px 2px rgba(58,50,44,.05), 0 8px 24px -12px rgba(58,50,44,.18);
+  --shadow-sm: 0 1px 2px rgba(58,50,44,.06), 0 4px 12px -8px rgba(58,50,44,.16);
+  --shadow-lg: 0 2px 4px rgba(58,50,44,.05), 0 24px 48px -20px rgba(58,50,44,.28);
+
+  --font-body: "Nunito", system-ui, -apple-system, sans-serif;
+  --font-head: "Fredoka", "Nunito", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body { min-height: 100dvh; }
+
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input, select { font-family: inherit; }
+h1,h2,h3,h4 { font-family: var(--font-head); font-weight: 600; letter-spacing: -.01em; line-height: 1.1; }
+
+/* ============================================================
+   App scaffold
+   ============================================================ */
+#root { min-height: 100dvh; }
+
+.app {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 20px 120px;
+}
+
+/* Top bar */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 22px 4px 18px;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand .logo {
+  width: 42px; height: 42px; border-radius: 13px;
+  background: linear-gradient(150deg, var(--accent), #F39A6B);
+  display: grid; place-items: center; color: #fff;
+  box-shadow: 0 6px 16px -6px var(--accent);
+  flex: none;
+}
+.brand .logo svg { width: 24px; height: 24px; }
+.brand h1 { font-size: 21px; }
+.brand .sub { font-size: 12.5px; color: var(--muted); font-weight: 600; margin-top: 1px; }
+
+.datechip {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface); border: 1px solid var(--line);
+  padding: 9px 14px; border-radius: 999px; font-weight: 700; font-size: 13.5px;
+  box-shadow: var(--shadow-sm); color: var(--ink-soft);
+}
+.datechip svg { width: 16px; height: 16px; color: var(--accent); }
+
+/* Tabs */
+.tabs {
+  display: flex; gap: 6px; background: var(--bg-2);
+  padding: 6px; border-radius: 999px; width: fit-content;
+  margin: 0 auto 26px; box-shadow: inset 0 1px 2px rgba(58,50,44,.05);
+}
+.tab {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 20px; border-radius: 999px; font-weight: 700; font-size: 14.5px;
+  color: var(--ink-soft); transition: all .18s ease; white-space: nowrap;
+}
+.tab svg { width: 17px; height: 17px; }
+.tab:hover { color: var(--ink); }
+.tab.active {
+  background: var(--surface); color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Cards */
+.card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--r-lg); box-shadow: var(--shadow);
+}
+.card-pad { padding: 22px; }
+.card-h { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.card-h h3 { font-size: 17px; }
+.card-h .hint { font-size: 12.5px; color: var(--muted); font-weight: 700; white-space: nowrap; }
+
+.grid { display: grid; gap: 18px; }
+
+/* ============================================================
+   Buttons & inputs
+   ============================================================ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 13px 20px; border-radius: var(--r-md); font-weight: 800; font-size: 15px;
+  transition: transform .12s ease, box-shadow .2s ease, background .2s ease;
+}
+.btn svg { width: 18px; height: 18px; }
+.btn:active { transform: translateY(1px) scale(.99); }
+.btn-primary { background: var(--accent); color: #fff; box-shadow: 0 8px 18px -8px var(--accent); }
+.btn-primary:hover { background: var(--accent-d); }
+.btn-ghost { background: var(--bg-2); color: var(--ink); }
+.btn-ghost:hover { background: var(--line-2); }
+.btn-block { width: 100%; }
+.btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+.field { display: flex; flex-direction: column; gap: 7px; }
+.field label { font-size: 13px; font-weight: 800; color: var(--ink-soft); display: flex; align-items: center; gap: 6px; }
+.field .dot { width: 9px; height: 9px; border-radius: 3px; flex: none; }
+.input {
+  width: 100%; background: var(--bg); border: 1.5px solid var(--line-2);
+  border-radius: var(--r-sm); padding: 13px 14px; font-size: 15.5px; font-weight: 700;
+  color: var(--ink); transition: border-color .15s, background .15s, box-shadow .15s;
+}
+.input::placeholder { color: var(--muted); font-weight: 600; }
+.input:focus { outline: none; border-color: var(--accent); background: var(--surface); box-shadow: 0 0 0 4px var(--accent-wash); }
+.input.suffix-pad { padding-right: 44px; }
+.input-wrap { position: relative; }
+.input-wrap .suffix { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 12.5px; font-weight: 800; color: var(--muted); pointer-events: none; }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* ============================================================
+   Rings (donut) & progress
+   ============================================================ */
+.ring-wrap { position: relative; display: grid; place-items: center; }
+.ring-center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.ring-center .big { font-family: var(--font-head); font-size: 34px; font-weight: 600; line-height: 1; }
+.ring-center .lab { font-size: 11.5px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-top: 3px; }
+.ring-center .goal { font-size: 12.5px; font-weight: 800; color: var(--ink-soft); margin-top: 5px; }
+
+/* Macro stat bars */
+.macro-row { display: flex; flex-direction: column; gap: 18px; }
+.macro { }
+.macro-top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+.macro-name { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 14.5px; }
+.macro-name .dot { width: 11px; height: 11px; border-radius: 4px; }
+.macro-val { font-weight: 800; font-size: 13.5px; color: var(--ink-soft); white-space: nowrap; }
+.macro-val b { color: var(--ink); font-family: var(--font-head); font-weight: 600; font-size: 15px; }
+.bar { height: 11px; border-radius: 999px; background: var(--bg-2); overflow: hidden; }
+.bar > span { display: block; height: 100%; border-radius: 999px; transition: width .6s cubic-bezier(.22,1,.36,1); }
+.over { color: var(--accent-d) !important; }
+
+/* Mini stat tiles */
+.tiles { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+.tile { background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-md); padding: 14px; }
+.tile .k { font-size: 11.5px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.tile .v { font-family: var(--font-head); font-size: 24px; font-weight: 600; margin-top: 4px; }
+.tile .v small { font-size: 13px; color: var(--muted); font-weight: 700; font-family: var(--font-body); }
+
+/* ============================================================
+   Water tracker
+   ============================================================ */
+.water { display: flex; align-items: center; gap: 14px; }
+.cups { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
+.cup {
+  width: 34px; height: 42px; border-radius: 7px 7px 11px 11px;
+  border: 2px solid var(--water); position: relative; overflow: hidden;
+  background: var(--water-wash); transition: transform .12s;
+}
+.cup:hover { transform: translateY(-2px); }
+.cup.full { background: var(--water); }
+.cup.full::after { content:""; position:absolute; inset:0; background: linear-gradient(180deg, rgba(255,255,255,.35), transparent 50%); }
+.water-meta { text-align: right; }
+.water-meta .v { font-family: var(--font-head); font-size: 22px; font-weight: 600; }
+.water-meta .k { font-size: 12px; color: var(--muted); font-weight: 700; }
+
+/* ============================================================
+   History table
+   ============================================================ */
+.meal-list { display: flex; flex-direction: column; }
+.meal {
+  display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 14px;
+  padding: 14px 6px; border-top: 1px solid var(--line);
+}
+.meal:first-child { border-top: none; }
+.meal-main { min-width: 0; }
+.meal-name { font-weight: 800; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.meal-name .photo { width: 30px; height: 30px; border-radius: 8px; object-fit: cover; flex:none; border: 1px solid var(--line-2); }
+.meal-macros { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.mchip { font-size: 11.5px; font-weight: 800; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.mchip.p { background: var(--protein-wash); color: #6A4FA8; }
+.mchip.c { background: var(--carbs-wash); color: #B97714; }
+.mchip.f { background: var(--fat-wash); color: #2A8472; }
+.meal-cal { font-family: var(--font-head); font-weight: 600; font-size: 19px; text-align: right; white-space: nowrap; }
+.meal-cal small { font-size: 12px; color: var(--muted); font-weight: 700; font-family: var(--font-body); }
+.del {
+  width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center;
+  color: var(--muted); background: var(--bg-2); transition: all .15s;
+}
+.del:hover { background: var(--accent-wash); color: var(--accent-d); }
+.del svg { width: 17px; height: 17px; }
+
+.btn .spin { width: 17px; height: 17px; border-color: var(--line-2); border-top-color: var(--accent); }
+@media (max-width: 420px) { .lab-est { display: none; } }
+
+/* Weight-goal metrics & plan */
+.metric-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+.metric { background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-md); padding: 14px; }
+.metric-k { font-size: 11.5px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.metric-v { font-family: var(--font-head); font-size: 26px; font-weight: 600; margin-top: 4px; line-height: 1.05; }
+.metric-v small { font-size: 13px; color: var(--muted); font-weight: 700; font-family: var(--font-body); }
+.metric-tag { display: inline-block; margin-top: 9px; font-size: 11.5px; font-weight: 800; padding: 3px 11px; border-radius: 999px; }
+.mini-link { margin-top: 9px; font-size: 12.5px; font-weight: 800; color: var(--accent); }
+.mini-link:hover { color: var(--accent-d); }
+
+.rate-seg { display: flex; gap: 8px; }
+.rate-seg button { flex: 1; padding: 9px 6px; border-radius: var(--r-sm); background: var(--bg-2); font-weight: 800; font-size: 13px; color: var(--ink-soft); border: 1.5px solid transparent; transition: all .14s; line-height: 1.2; }
+.rate-seg button:hover { background: var(--line-2); }
+.rate-seg button.on { background: var(--surface); border-color: var(--accent); color: var(--accent-d); box-shadow: var(--shadow-sm); }
+.rate-seg .r-sub { display: block; font-size: 10.5px; color: var(--muted); font-weight: 700; margin-top: 2px; }
+.rate-seg button.on .r-sub { color: var(--accent); }
+
+.plan { background: var(--accent-wash); border: 1px solid #F6C9BC; border-radius: var(--r-md); padding: 16px; margin-top: 18px; }
+.plan-line { font-weight: 800; font-size: 14px; color: var(--ink-soft); }
+.plan-cals { display: flex; align-items: baseline; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+.plan-cals .big { font-family: var(--font-head); font-size: 34px; font-weight: 600; color: var(--accent-d); line-height: 1; }
+.plan-sub { font-size: 12px; font-weight: 800; color: var(--muted); white-space: nowrap; }
+.plan-water { display: flex; align-items: center; gap: 6px; margin-top: 11px; padding-top: 11px; border-top: 1px solid #F6C9BC; font-weight: 800; font-size: 13px; color: var(--water); }
+.plan-water svg { width: 15px; height: 15px; }
+
+/* Water tracker (ml) */
+.water-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 11px; }
+.water-amt b { font-family: var(--font-head); font-size: 30px; font-weight: 600; color: var(--water); }
+.water-amt span { font-size: 14px; color: var(--muted); font-weight: 700; margin-left: 5px; }
+.water-left { font-size: 12.5px; font-weight: 800; color: var(--ink-soft); white-space: nowrap; }
+.wbar { height: 14px; border-radius: 999px; background: var(--water-wash); overflow: hidden; }
+.wbar > span { display: block; height: 100%; border-radius: 999px; background: var(--water); transition: width .5s cubic-bezier(.22,1,.36,1); }
+.wquick { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.chip-add { background: var(--water-wash); color: #2C7BB0; font-weight: 800; font-size: 13.5px; padding: 9px 14px; border-radius: 999px; transition: all .12s; }
+.chip-add:hover { background: #CDE7F8; }
+.chip-add:active { transform: translateY(1px); }
+.chip-add.minus { background: var(--bg-2); color: var(--ink-soft); margin-left: auto; }
+.chip-add.minus:hover { background: var(--line-2); }
+.chip-add:disabled { opacity: .45; cursor: not-allowed; }
+.wcustom { display: flex; gap: 8px; margin-top: 10px; }
+
+/* Ingredients */
+.count-pill { background: var(--accent); color: #fff; font-size: 11px; font-weight: 800; padding: 1px 8px; border-radius: 999px; }
+.ing-list { display: flex; flex-direction: column; gap: 6px; }
+.ing-head { display: grid; grid-template-columns: 1fr 52px 40px 40px 40px 28px; gap: 6px; padding: 0 2px; font-size: 10.5px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+.ing-head span:not(:first-child) { text-align: center; }
+.ing-row { display: grid; grid-template-columns: 1fr 52px 40px 40px 40px 28px; gap: 6px; align-items: center; }
+.ing-name, .ing-num { background: var(--bg); border: 1.5px solid var(--line-2); border-radius: 9px; padding: 9px 10px; font-size: 14px; font-weight: 700; color: var(--ink); width: 100%; }
+.ing-num { padding: 9px 6px; text-align: center; font-size: 13px; }
+.ing-name:focus, .ing-num:focus { outline: none; border-color: var(--accent); background: var(--surface); }
+.ing-del { width: 28px; height: 30px; display: grid; place-items: center; color: var(--muted); background: var(--bg-2); border-radius: 8px; }
+.ing-del:hover { background: var(--accent-wash); color: var(--accent-d); }
+
+.totals { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); }
+.totals .k { font-size: 12.5px; font-weight: 800; color: var(--ink-soft); display: flex; align-items: center; gap: 7px; margin-bottom: 7px; }
+.totals .k .dot { width: 10px; height: 10px; border-radius: 3px; }
+.totals .v { font-family: var(--font-head); font-size: 24px; font-weight: 600; }
+.totals .v small { font-size: 12.5px; color: var(--muted); font-weight: 700; font-family: var(--font-body); }
+.tot-cal { margin-bottom: 16px; }
+.tot-macros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+
+/* Segmented toggle */
+.seg { display: flex; gap: 4px; background: var(--bg-2); padding: 4px; border-radius: 999px; }
+.seg button { padding: 6px 16px; border-radius: 999px; font-weight: 800; font-size: 13px; color: var(--ink-soft); transition: all .15s; }
+.seg button.on { background: var(--surface); color: var(--accent); box-shadow: var(--shadow-sm); }
+
+/* Trend headers & charts */
+.trend-head { display: flex; align-items: flex-end; justify-content: space-between; margin: 4px 0 14px; }
+.trend-big { font-family: var(--font-head); font-size: 30px; font-weight: 600; line-height: 1; }
+.trend-big small { font-size: 14px; color: var(--muted); font-weight: 700; font-family: var(--font-body); }
+.trend-k { font-size: 12px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; margin-top: 5px; }
+.trend-sub { font-size: 13.5px; font-weight: 800; }
+.chart-leg { display: flex; align-items: center; gap: 7px; margin-top: 10px; font-size: 12px; font-weight: 800; color: var(--muted); }
+.leg-dash { width: 22px; height: 0; border-top: 2px dashed var(--accent); opacity: .7; }
+
+/* AI coach */
+.coach { display: flex; flex-direction: column; gap: 14px; }
+.coach-head { font-weight: 800; font-size: 15px; color: var(--ink); line-height: 1.4; }
+.coach-cal { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border-radius: var(--r-md); }
+.coach-cal.increase { background: var(--fat-wash); }
+.coach-cal.decrease { background: var(--accent-wash); }
+.coach-cal.maintain { background: var(--bg-2); }
+.cc-ico { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; flex: none; background: var(--surface); box-shadow: var(--shadow-sm); }
+.cc-ico svg { width: 18px; height: 18px; }
+.coach-cal.increase .cc-ico { color: var(--fat); }
+.coach-cal.decrease .cc-ico { color: var(--accent-d); }
+.coach-cal.maintain .cc-ico { color: var(--ink-soft); }
+.cc-t { font-weight: 800; font-size: 14.5px; }
+.cc-r { font-size: 13px; font-weight: 700; color: var(--ink-soft); margin-top: 3px; line-height: 1.4; }
+.coach-sec-h { display: flex; align-items: center; gap: 7px; font-weight: 800; font-size: 13px; color: var(--ink-soft); margin-bottom: 9px; }
+.coach-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.coach-list li { position: relative; padding-left: 20px; font-size: 14px; font-weight: 700; color: var(--ink); line-height: 1.4; }
+.coach-list li::before { content: ""; position: absolute; left: 4px; top: 7px; width: 7px; height: 7px; border-radius: 3px; background: var(--fat); }
+.coach-ex { display: flex; flex-direction: column; gap: 8px; }
+.coach-ex .ex { background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 11px 13px; }
+.coach-ex .ex b { font-weight: 800; font-size: 14px; }
+.coach-ex .ex span { display: block; font-size: 13px; font-weight: 700; color: var(--ink-soft); margin-top: 2px; line-height: 1.4; }
+
+@media (max-width: 440px) {
+  .ing-head, .ing-row { grid-template-columns: 1fr 46px 34px 34px 34px 26px; gap: 4px; }
+  .ing-num { padding: 9px 3px; }
+  .tot-macros { gap: 10px; }
+}
+
+/* Smart nutrition tip */
+.tipcard { display: flex; align-items: flex-start; gap: 13px; background: var(--accent-wash); border: 1px solid #F6C9BC; border-radius: var(--r-lg); padding: 16px 16px 16px 15px; }
+.tip-ico { width: 38px; height: 38px; border-radius: 12px; background: var(--surface); color: var(--accent); display: grid; place-items: center; flex: none; box-shadow: var(--shadow-sm); }
+.tip-ico svg { width: 20px; height: 20px; }
+.tip-body { flex: 1; min-width: 0; }
+.tip-h { font-size: 11.5px; font-weight: 800; color: var(--accent-d); text-transform: uppercase; letter-spacing: .04em; }
+.tip-body p { font-size: 14.5px; font-weight: 700; color: var(--ink); line-height: 1.45; margin-top: 4px; text-wrap: pretty; }
+.tip-load { display: flex; align-items: center; gap: 9px; font-weight: 800; color: var(--accent-d); font-size: 13.5px; margin-top: 5px; }
+.tip-x { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; color: var(--accent-d); flex: none; opacity: .6; transition: opacity .15s, background .15s; }
+.tip-x:hover { opacity: 1; background: #F6D3C9; }
+
+/* Nutrient flags */
+.nflag { font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 999px; margin-left: 7px; text-transform: uppercase; letter-spacing: .02em; }
+.flag-over { background: var(--accent-wash); color: var(--accent-d); }
+.flag-good { background: var(--fat-wash); color: #2A8472; }
+
+.empty { text-align: center; padding: 38px 20px; color: var(--muted); }
+.empty svg { width: 44px; height: 44px; margin-bottom: 12px; color: var(--line-2); }
+.empty p { font-weight: 700; font-size: 14.5px; }
+
+/* ============================================================
+   Image upload / estimation
+   ============================================================ */
+.drop {
+  border: 2px dashed var(--line-2); border-radius: var(--r-md);
+  background: var(--bg); padding: 26px 20px; text-align: center;
+  transition: all .18s; cursor: pointer; position: relative;
+}
+.drop:hover, .drop.over { border-color: var(--accent); background: var(--accent-wash); }
+.drop .ico { width: 52px; height: 52px; border-radius: 16px; background: var(--accent-wash); color: var(--accent); display: grid; place-items: center; margin: 0 auto 12px; }
+.drop .ico svg { width: 26px; height: 26px; }
+.drop h4 { font-size: 15.5px; }
+.drop p { font-size: 13px; color: var(--muted); font-weight: 700; margin-top: 4px; }
+
+.preview { position: relative; border-radius: var(--r-md); overflow: hidden; }
+.preview img { width: 100%; display: block; max-height: 280px; object-fit: cover; }
+.preview .x { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border-radius: 999px; background: rgba(0,0,0,.55); color: #fff; display: grid; place-items: center; backdrop-filter: blur(4px); }
+.preview .x svg { width: 16px; height: 16px; }
+
+.analyzing { display: flex; align-items: center; gap: 12px; justify-content: center; padding: 16px; font-weight: 800; color: var(--accent-d); }
+.spin { width: 20px; height: 20px; border: 2.5px solid var(--accent-wash); border-top-color: var(--accent); border-radius: 999px; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.ai-result { background: var(--accent-wash); border: 1px solid #F6C9BC; border-radius: var(--r-md); padding: 14px 16px; }
+.ai-result .row { display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--accent-d); font-size: 13.5px; margin-bottom: 6px; }
+.ai-result .row svg { width: 16px; height: 16px; }
+.ai-result p { font-size: 13.5px; color: var(--ink-soft); font-weight: 700; line-height: 1.4; }
+
+.banner { border-radius: var(--r-sm); padding: 11px 14px; font-weight: 700; font-size: 13.5px; display:flex; gap:8px; align-items:center; }
+.banner svg { width: 16px; height: 16px; flex:none; }
+.banner.warn { background: #FCEFD6; color: #9A6B12; }
+
+/* Toast */
+.toast {
+  position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px);
+  background: var(--ink); color: #fff; padding: 13px 20px; border-radius: 999px;
+  font-weight: 800; font-size: 14px; box-shadow: var(--shadow-lg); z-index: 50;
+  display: flex; align-items: center; gap: 9px; opacity: 0; pointer-events: none;
+  transition: opacity .25s, transform .25s;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast svg { width: 17px; height: 17px; color: #7BD08F; }
+
+/* Animations */
+@keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+.pop { animation: pop .4s cubic-bezier(.22,1,.36,1) both; }
+.pop-2 { animation-delay: .06s; }
+.pop-3 { animation-delay: .12s; }
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+.dash-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px; align-items: start; }
+
+@media (max-width: 760px) {
+  .dash-grid { grid-template-columns: 1fr; }
+  .app { padding: 0 14px 110px; }
+  .tab span.lab { display: none; }
+  .tab { padding: 11px 18px; }
+  .brand h1 { font-size: 19px; }
+  .ring-center .big { font-size: 30px; }
+  .card-pad { padding: 18px; }
+}
+@media (max-width: 440px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .tiles { grid-template-columns: 1fr 1fr; }
+}
+
+  </style>
+</head>
+<body style="background-color: rgb(80, 94, 113)">
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel" data-presets="react">
+/* lib.jsx — shared helpers, icons, and UI primitives */
+const { useState, useEffect, useRef, useCallback } = React;
+
+/* ---------- constants ---------- */
+const MACROS = [
+  { key: "protein", label: "Protein", color: "var(--protein)", cls: "p", kcal: 4 },
+  { key: "carbs",   label: "Carbs",   color: "var(--carbs)",   cls: "c", kcal: 4 },
+  { key: "fat",     label: "Fat",     color: "var(--fat)",     cls: "f", kcal: 9 },
+];
+
+const DEFAULT_GOALS = { weight: 70, height: 175, goalWeight: 66, rate: 0.5, bmr: 1600, tdee: 2200, calories: 2000, protein: 150, carbs: 200, fat: 65, waterGoal: 2300 };
+
+/* ---------- storage ---------- */
+const LS = {
+  get(k, fallback) {
+    try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback; }
+    catch { return fallback; }
+  },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+
+function usePersisted(key, initial) {
+  const [val, setVal] = useState(() => LS.get(key, initial));
+  useEffect(() => { LS.set(key, val); }, [key, val]);
+  return [val, setVal];
+}
+
+/* ---------- date helpers ---------- */
+function todayKey(d = new Date()) {
+  return d.toISOString().slice(0, 10);
+}
+function prettyDate(d = new Date()) {
+  return d.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+}
+
+/* ---------- math ---------- */
+const round = (n) => Math.round(n || 0);
+const clampPct = (v, g) => g > 0 ? Math.min(100, (v / g) * 100) : 0;
+
+function sumMeals(meals) {
+  return meals.reduce((a, m) => ({
+    calories: a.calories + (+m.calories || 0),
+    protein:  a.protein  + (+m.protein  || 0),
+    carbs:    a.carbs    + (+m.carbs    || 0),
+    fat:      a.fat      + (+m.fat      || 0),
+  }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
+}
+
+/* ---------- icons (inline, stroke-based) ---------- */
+const Icon = {
+  flame: (p) => <svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M12 2c0 4-4 5-4 9a4 4 0 0 0 8 0c0-1.5-1-2.5-1-4 2 1 4 3.2 4 6a7 7 0 1 1-14 0c0-4.5 4-6.5 4-11 1.5.8 3 2.4 3 0z"/></svg>,
+  grid:  (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>,
+  plus:  (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" {...p}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+  target:(p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/></svg>,
+  cal:   (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="3" y="4" width="18" height="17" rx="3"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>,
+  trash: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>,
+  camera:(p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L19 6h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" transform="translate(-1 0)"/><circle cx="11" cy="13" r="3.6"/></svg>,
+  x:     (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" {...p}><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>,
+  check: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" {...p}><polyline points="20 6 9 17 4 12"/></svg>,
+  sparkle:(p)=> <svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8z"/><path d="M19 14l.9 2.6L22 17.5l-2.1.9L19 21l-.9-2.6L16 17.5l2.1-.9z"/></svg>,
+  drop:  (p) => <svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M12 2.5s6.5 7 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 9.5 12 2.5 12 2.5z"/></svg>,
+  leaf:  (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M11 20A7 7 0 0 1 4 13c0-6 7-9 16-9 0 9-3 16-9 16z"/><path d="M4 20c4-6 8-8 13-9"/></svg>,
+  bolt:  (p) => <svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M13 2L4 14h6l-1 8 9-12h-6z"/></svg>,
+  info:  (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="8" r="0.6" fill="currentColor"/></svg>,
+  trend: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" {...p}><polyline points="3 16 9 10 13 14 21 6"/><polyline points="15 6 21 6 21 12"/></svg>,
+  dumbbell: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M6 7v10M3 9v6M18 7v10M21 9v6M6 12h12"/></svg>,
+  gauge: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M4 15a8 8 0 0 1 16 0"/><line x1="12" y1="15" x2="15.5" y2="10.5"/><line x1="4" y1="19" x2="20" y2="19"/></svg>,
+  up:    (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" {...p}><polyline points="6 14 12 8 18 14"/></svg>,
+  down:  (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" {...p}><polyline points="6 10 12 16 18 10"/></svg>,
+};
+
+/* ---------- Ring (donut) ---------- */
+function Ring({ value, goal, size = 188, stroke = 16, color = "var(--accent)", label, unit }) {
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const pct = clampPct(value, goal) / 100;
+  const over = goal > 0 && value > goal;
+  return (
+    <div className="ring-wrap" style={{ width: size, height: size }}>
+      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="var(--bg-2)" strokeWidth={stroke} />
+        <circle cx={size/2} cy={size/2} r={r} fill="none"
+          stroke={over ? "var(--accent-d)" : color} strokeWidth={stroke} strokeLinecap="round"
+          strokeDasharray={c} strokeDashoffset={c * (1 - pct)}
+          style={{ transition: "stroke-dashoffset .8s cubic-bezier(.22,1,.36,1)" }} />
+      </svg>
+      <div className="ring-center">
+        <div className="big" style={{ color: over ? "var(--accent-d)" : "var(--ink)" }}>{round(value)}</div>
+        <div className="lab">{label}</div>
+        <div className="goal">{over ? `${round(value - goal)} over` : `of ${round(goal)}${unit ? " " + unit : ""}`}</div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- MacroBar ---------- */
+function MacroBar({ macro, value, goal }) {
+  const pct = clampPct(value, goal);
+  const over = goal > 0 && value > goal;
+  return (
+    <div className="macro">
+      <div className="macro-top">
+        <div className="macro-name"><span className="dot" style={{ background: macro.color }}></span>{macro.label}</div>
+        <div className={"macro-val" + (over ? " over" : "")}><b>{round(value)}</b> / {round(goal)} g</div>
+      </div>
+      <div className="bar"><span style={{ width: pct + "%", background: macro.color }}></span></div>
+    </div>
+  );
+}
+
+/* ---------- Toast ---------- */
+function useToast() {
+  const [msg, setMsg] = useState(null);
+  const t = useRef();
+  const show = useCallback((m) => {
+    setMsg(m); clearTimeout(t.current);
+    t.current = setTimeout(() => setMsg(null), 2400);
+  }, []);
+  const node = (
+    <div className={"toast" + (msg ? " show" : "")}>
+      {msg && <>{Icon.check()}{msg}</>}
+    </div>
+  );
+  return [node, show];
+}
+
+
+
+/* ============ */
+
+/* Goals.jsx — goal setting page with optional BMR/TDEE calculator */
+
+function NumField({ label, dot, value, onChange, suffix, placeholder, step }) {
+  return (
+    <div className="field">
+      <label>{dot && <span className="dot" style={{ background: dot }}></span>}{label}</label>
+      <div className="input-wrap">
+        <input className={"input" + (suffix ? " suffix-pad" : "")} type="number" inputMode="decimal"
+          min="0" step={step || "1"} value={value}
+          placeholder={placeholder}
+          onChange={(e) => onChange(e.target.value)} />
+        {suffix && <span className="suffix">{suffix}</span>}
+      </div>
+    </div>
+  );
+}
+
+const ACTIVITY = [
+  { k: "Sedentary", f: 1.2, d: "Little / no exercise" },
+  { k: "Light", f: 1.375, d: "1–3 days / week" },
+  { k: "Moderate", f: 1.55, d: "3–5 days / week" },
+  { k: "Active", f: 1.725, d: "6–7 days / week" },
+  { k: "Athlete", f: 1.9, d: "Hard daily training" },
+];
+
+function Goals({ goals, setGoals, showToast }) {
+  const [form, setForm] = useState({ ...DEFAULT_GOALS, ...goals });
+  const [calc, setCalc] = useState({ sex: "male", age: 30, act: 1.55 });
+  useEffect(() => setForm({ ...DEFAULT_GOALS, ...goals }), [goals]);
+
+  const set = (k) => (v) => setForm((f) => ({ ...f, [k]: v === "" ? "" : +v }));
+
+  // Macro calories breakdown for the donut hint
+  const macroKcal = (+form.protein||0)*4 + (+form.carbs||0)*4 + (+form.fat||0)*9;
+  const calTarget = +form.calories || 0;
+
+  // --- body metrics ---
+  const hM = (+form.height||0)/100;
+  const w  = +form.weight||0;
+  const gw = +form.goalWeight||0;
+  const bmi = hM>0 ? w/(hM*hM) : 0;
+  const recMin = hM>0 ? 18.5*hM*hM : 0;
+  const recMax = hM>0 ? 24.9*hM*hM : 0;
+  const suggest = Math.round((recMin+recMax)/2);
+  const bmiCat = !bmi ? "—" : bmi<18.5 ? "Underweight" : bmi<25 ? "Healthy" : bmi<30 ? "Overweight" : "Obese";
+  const bmiColor = bmi<18.5 ? "var(--water)" : bmi<25 ? "var(--fat)" : bmi<30 ? "var(--carbs)" : "var(--accent)";
+
+  // --- weight-loss / gain plan ---
+  const rate = +form.rate || 0.5;                  // kg per week
+  const delta = w - gw;                            // + => lose, - => gain
+  const dir = Math.abs(delta) < 0.1 ? "maintain" : (delta > 0 ? "lose" : "gain");
+  const tdeeV = +form.tdee || 0;
+  const dailyAdj = rate * 7700 / 7;
+  const floor = calc.sex === "female" ? 1200 : 1500;
+  let target = Math.round(tdeeV);
+  let capped = false;
+  if (dir === "lose") { const t = Math.round(tdeeV - dailyAdj); target = Math.max(t, floor); capped = t < floor; }
+  else if (dir === "gain") { target = Math.round(tdeeV + dailyAdj); }
+  const weeks = (dir !== "maintain" && rate > 0) ? Math.abs(delta) / rate : 0;
+  const waterGoal = gw > 0 ? Math.round(gw * 35 / 100) * 100 : 2500;
+
+  function runCalc() {
+    const { sex, age, act } = calc;
+    const bmr = 10*w + 6.25*(+form.height||0) - 5*age + (sex === "male" ? 5 : -161);
+    const tdee = bmr * act;
+    setForm((f) => ({ ...f, bmr: Math.round(bmr), tdee: Math.round(tdee), calories: (+f.calories>0 ? f.calories : Math.round(tdee)) }));
+    showToast("BMR & TDEE calculated");
+  }
+
+  function applyPlan() {
+    setForm((f) => ({ ...f, calories: target, waterGoal }));
+    showToast(dir === "maintain" ? "Maintenance calories applied" : "Calorie target applied");
+  }
+
+  function applyMacroSplit(p, c, fa) {
+    const cal = +form.calories || 2000;
+    setForm((f) => ({
+      ...f,
+      protein: Math.round(cal * p / 100 / 4),
+      carbs:   Math.round(cal * c / 100 / 4),
+      fat:     Math.round(cal * fa / 100 / 9),
+    }));
+  }
+
+  function save() {
+    const clean = {};
+    for (const k of ["weight","height","goalWeight","rate","bmr","tdee","calories","protein","carbs","fat"]) clean[k] = Math.max(0, +form[k] || 0);
+    clean.rate = rate;
+    clean.waterGoal = waterGoal;
+    setGoals(clean);
+    showToast("Goals saved");
+  }
+
+  return (
+    <div className="grid" style={{ gridTemplateColumns: "1fr", maxWidth: 760, margin: "0 auto" }}>
+      {/* Calculator */}
+      <div className="card card-pad pop">
+        <div className="card-h">
+          <h3>Estimate your needs</h3>
+          <span className="hint">Mifflin–St Jeor</span>
+        </div>
+        <div className="form-grid">
+          <div className="field">
+            <label>Sex</label>
+            <select className="input" value={calc.sex} onChange={(e)=>setCalc({...calc, sex:e.target.value})}>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </div>
+          <NumField label="Age" suffix="yrs" value={calc.age} onChange={(v)=>setCalc({...calc, age:+v||0})} />
+          <NumField label="Weight" suffix="kg" value={form.weight} onChange={set("weight")} />
+          <NumField label="Height" suffix="cm" value={form.height} onChange={set("height")} />
+        </div>
+        <div className="field" style={{ marginTop: 16 }}>
+          <label>Activity level</label>
+          <select className="input" value={calc.act} onChange={(e)=>setCalc({...calc, act:+e.target.value})}>
+            {ACTIVITY.map(a => <option key={a.k} value={a.f}>{a.k} — {a.d}</option>)}
+          </select>
+        </div>
+        <button className="btn btn-ghost btn-block" style={{ marginTop: 18 }} onClick={runCalc}>
+          {Icon.bolt()} Calculate BMR & TDEE
+        </button>
+      </div>
+
+      {/* Weight goal & water */}
+      <div className="card card-pad pop pop-2">
+        <div className="card-h">
+          <h3>Weight goal</h3>
+          <span className="hint">BMI &amp; calorie plan</span>
+        </div>
+
+        <div className="metric-row">
+          <div className="metric">
+            <div className="metric-k">Your BMI</div>
+            <div className="metric-v" style={{ color: bmiColor }}>{bmi ? bmi.toFixed(1) : "—"}</div>
+            <span className="metric-tag" style={{ background: bmiColor+"22", color: bmiColor }}>{bmiCat}</span>
+          </div>
+          <div className="metric">
+            <div className="metric-k">Healthy weight</div>
+            <div className="metric-v">{round(recMin)}–{round(recMax)}<small> kg</small></div>
+            {suggest>0 && <button type="button" className="mini-link" onClick={()=>setForm(f=>({...f, goalWeight: suggest}))}>Suggest {suggest} kg →</button>}
+          </div>
+        </div>
+
+        <div className="form-grid">
+          <NumField label="Goal weight" suffix="kg" value={form.goalWeight} onChange={set("goalWeight")} />
+          <div className="field">
+            <label>Weekly pace</label>
+            <div className="rate-seg">
+              {[{v:0.25,n:"Relaxed"},{v:0.5,n:"Steady"},{v:0.75,n:"Ambitious"}].map(o=>(
+                <button type="button" key={o.v} className={"r-btn"+(rate===o.v?" on":"")} onClick={()=>setForm(f=>({...f, rate:o.v}))}>
+                  {o.n}<span className="r-sub">{o.v} kg/wk</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="plan">
+          <div className="plan-line">
+            {dir==="maintain" ? `Maintain your weight at ${round(w)} kg`
+              : `${dir==="lose"?"Lose":"Gain"} ${Math.abs(delta).toFixed(1)} kg to reach ${round(gw)} kg`}
+          </div>
+          <div className="plan-cals">
+            <span className="big">{target}</span>
+            <span style={{ fontWeight:800, color:"var(--ink-soft)", fontSize:14 }}>kcal / day</span>
+            {dir!=="maintain" && <span className="plan-sub" style={{ marginLeft:"auto" }}>~{Math.max(1,Math.round(weeks))} wks · {dir==="lose"?"−":"+"}{round(dailyAdj)} kcal/day</span>}
+          </div>
+          {capped && <div style={{ fontSize:12, fontWeight:800, color:"var(--accent-d)", marginTop:6 }}>Capped at a safe minimum of {floor} kcal.</div>}
+          <div className="plan-water">{Icon.drop()} Water goal · {waterGoal} ml / day</div>
+        </div>
+
+        <button className="btn btn-primary btn-block" style={{ marginTop: 16 }} onClick={applyPlan} disabled={!tdeeV}>
+          {Icon.check()} Use this plan
+        </button>
+        {!tdeeV && <div className="banner warn" style={{ marginTop:10 }}>{Icon.info()}Calculate your BMR &amp; TDEE above first.</div>}
+      </div>
+
+      {/* Targets */}
+      <div className="card card-pad pop pop-3">
+        <div className="card-h">
+          <h3>Daily targets</h3>
+          <span className="hint">edit anything</span>
+        </div>
+        <div className="form-grid">
+          <NumField label="BMR" suffix="kcal" value={form.bmr} onChange={set("bmr")} />
+          <NumField label="TDEE" suffix="kcal" value={form.tdee} onChange={set("tdee")} />
+        </div>
+        <div style={{ marginTop: 16 }}>
+          <NumField label="Calorie goal" dot="var(--accent)" suffix="kcal / day" value={form.calories} onChange={set("calories")} />
+        </div>
+
+        {/* Quick macro presets */}
+        <div style={{ marginTop: 20 }}>
+          <label style={{ fontSize: 13, fontWeight: 800, color: "var(--ink-soft)", display:"block", marginBottom: 9 }}>
+            Quick macro split
+          </label>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {[
+              { n: "Balanced", v: [30,40,30] },
+              { n: "High protein", v: [40,35,25] },
+              { n: "Low carb", v: [35,25,40] },
+              { n: "Endurance", v: [25,55,20] },
+            ].map(p => (
+              <button key={p.n} className="btn btn-ghost" style={{ padding: "9px 15px", fontSize: 13.5 }}
+                onClick={() => applyMacroSplit(...p.v)}>{p.n}</button>
+            ))}
+          </div>
+        </div>
+
+        <div className="form-grid" style={{ marginTop: 18 }}>
+          <NumField label="Protein" dot="var(--protein)" suffix="g" value={form.protein} onChange={set("protein")} />
+          <NumField label="Carbs" dot="var(--carbs)" suffix="g" value={form.carbs} onChange={set("carbs")} />
+          <NumField label="Fat" dot="var(--fat)" suffix="g" value={form.fat} onChange={set("fat")} />
+          <div className="field">
+            <label>{Icon.info({style:{width:14,height:14}})} From macros</label>
+            <div className="input" style={{ display:"flex", alignItems:"center", background:"var(--bg-2)", border:"none" }}>
+              <b style={{ fontFamily:"var(--font-head)", marginRight: 6 }}>{round(macroKcal)}</b>
+              <span style={{ color:"var(--muted)", fontSize: 13 }}>kcal</span>
+            </div>
+          </div>
+        </div>
+
+        {calTarget > 0 && Math.abs(macroKcal - calTarget) > 60 && (
+          <div className="banner warn" style={{ marginTop: 14 }}>
+            {Icon.info()}
+            Your macros add up to {round(macroKcal)} kcal — that's {macroKcal > calTarget ? "above" : "below"} your {round(calTarget)} kcal goal.
+          </div>
+        )}
+
+        <button className="btn btn-primary btn-block" style={{ marginTop: 20 }} onClick={save}>
+          {Icon.check()} Save goals
+        </button>
+      </div>
+    </div>
+  );
+}
+
+
+
+/* ============ */
+
+/* AddMeal.jsx — add a meal manually or estimate from a photo via Claude vision */
+
+function fileToDataURL(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+// Downscale large photos so the data URL stays small for the vision call
+function downscale(dataURL, max = 768) {
+  return new Promise((res) => {
+    const img = new Image();
+    img.onload = () => {
+      let { width: w, height: h } = img;
+      if (Math.max(w, h) > max) {
+        const s = max / Math.max(w, h);
+        w = Math.round(w * s); h = Math.round(h * s);
+      }
+      const cv = document.createElement("canvas");
+      cv.width = w; cv.height = h;
+      cv.getContext("2d").drawImage(img, 0, 0, w, h);
+      res(cv.toDataURL("image/jpeg", 0.82));
+    };
+    img.onerror = () => res(dataURL);
+    img.src = dataURL;
+  });
+}
+
+function AddMeal({ onAdd, showToast }) {
+  const empty = { name: "", calories: "", protein: "", carbs: "", fat: "" };
+  const [form, setForm] = useState(empty);
+  const [photo, setPhoto] = useState(null);     // data URL (downscaled) kept with the meal
+  const [ingredients, setIngredients] = useState([]);
+  const [aiExtra, setAiExtra] = useState(null);
+  const [aiTip, setAiTip] = useState(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [aiNote, setAiNote] = useState(null);
+  const [aiError, setAiError] = useState(null);
+  const [dragOver, setDragOver] = useState(false);
+  const [nameBusy, setNameBusy] = useState(false);
+  const [nameNote, setNameNote] = useState(null);
+  const [nameError, setNameError] = useState(null);
+  const fileRef = useRef();
+
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  // Apply an AI estimate: fill ingredients (source of truth) + name + totals
+  function applyEstimate(json) {
+    const ings = Array.isArray(json.ingredients) ? json.ingredients.map((it) => ({
+      name: String(it.name || "Item"),
+      calories: Math.round(+it.calories || 0),
+      protein: Math.round(+it.protein || 0),
+      carbs: Math.round(+it.carbs || 0),
+      fat: Math.round(+it.fat || 0),
+    })) : [];
+    const sum = ings.reduce((a, it) => ({ calories:a.calories+it.calories, protein:a.protein+it.protein, carbs:a.carbs+it.carbs, fat:a.fat+it.fat }), { calories:0, protein:0, carbs:0, fat:0 });
+    setIngredients(ings);
+    const ex = json.extra ? { fiber:+json.extra.fiber||0, sugar:+json.extra.sugar||0, sodium:+json.extra.sodium||0, satFat:+json.extra.satFat||0 } : null;
+    setAiExtra(ex);
+    setAiTip(json.tip || null);
+    setForm((f) => ({
+      ...f,
+      name: json.name || f.name || "Estimated meal",
+      calories: ings.length ? sum.calories : (json.calories != null ? Math.round(json.calories) : f.calories),
+      protein:  ings.length ? sum.protein  : (json.protein  != null ? Math.round(json.protein)  : f.protein),
+      carbs:    ings.length ? sum.carbs    : (json.carbs    != null ? Math.round(json.carbs)    : f.carbs),
+      fat:      ings.length ? sum.fat      : (json.fat      != null ? Math.round(json.fat)      : f.fat),
+    }));
+  }
+
+  const updateIng = (i, k, v) => setIngredients((l) => l.map((it, idx) => idx === i ? { ...it, [k]: v } : it));
+  const addIng = () => setIngredients((l) => [...l, { name:"", calories:"", protein:"", carbs:"", fat:"" }]);
+  const removeIng = (i) => setIngredients((l) => l.filter((_, idx) => idx !== i));
+
+  async function handleFile(file) {
+    if (!file || !file.type.startsWith("image/")) return;
+    setAiError(null); setAiNote(null);
+    const raw = await fileToDataURL(file);
+    const small = await downscale(raw);
+    setPhoto(small);
+    estimate(small);
+  }
+
+  async function estimate(dataURL) {
+    setAnalyzing(true); setAiError(null); setAiNote(null);
+    try {
+      const base64 = dataURL.split(",")[1];
+      const media_type = (dataURL.match(/data:(.*?);/) || [])[1] || "image/jpeg";
+      const reply = await window.claude.complete({
+        messages: [{
+          role: "user",
+          content: [
+            { type: "image", source: { type: "base64", media_type, data: base64 } },
+            { type: "text", text:
+              "You are a nutrition estimator. Identify the food in this photo and estimate the nutrition for the portion shown, broken into its main ingredients/components. " +
+              "Respond ONLY with strict minified JSON, no prose, no code fences, in exactly this shape: " +
+              '{"name":"short food name","ingredients":[{"name":"ingredient","calories":number,"protein":number,"carbs":number,"fat":number}],"extra":{"fiber":number,"sugar":number,"sodium":number,"satFat":number},"tip":"one short friendly nutrition tip, max 16 words","note":"one short sentence on assumptions"}. ' +
+              "List 1-6 key ingredients. Macros, fiber, sugar and saturated fat in grams; sodium in mg; calories in kcal. If unsure, give your best single estimate." }
+          ]
+        }]
+      });
+      const json = JSON.parse((reply.match(/\{[\s\S]*\}/) || [reply])[0]);
+      applyEstimate(json);
+      setAiNote(json.note || "Estimated from your photo — adjust if needed.");
+      showToast("Estimated from photo");
+    } catch (err) {
+      setAiError("Couldn't estimate automatically. Enter the values manually below.");
+    } finally {
+      setAnalyzing(false);
+    }
+  }
+
+  async function estimateFromName() {
+    const dish = form.name.trim();
+    if (!dish || nameBusy) return;
+    setNameBusy(true); setNameNote(null); setNameError(null);
+    try {
+      const reply = await window.claude.complete({
+        messages: [{ role: "user", content:
+          `You are a nutrition estimator. Estimate the nutrition for one typical single serving of: "${dish}", broken into its main ingredients/components. ` +
+          "Respond ONLY with strict minified JSON, no prose, no code fences, in exactly this shape: " +
+          '{"name":"cleaned-up dish name","ingredients":[{"name":"ingredient","calories":number,"protein":number,"carbs":number,"fat":number}],"extra":{"fiber":number,"sugar":number,"sodium":number,"satFat":number},"tip":"one short friendly nutrition tip, max 16 words","note":"one short sentence on the portion assumed"}. ' +
+          "List 1-6 key ingredients. Macros, fiber, sugar and saturated fat in grams; sodium in mg; calories in kcal. If unsure, give your best single estimate." }]
+      });
+      const json = JSON.parse((reply.match(/\{[\s\S]*\}/) || [reply])[0]);
+      applyEstimate(json);
+      setNameNote(json.note || "Estimated for one typical serving — adjust if needed.");
+      showToast("Estimated from name");
+    } catch (err) {
+      setNameError("Couldn't estimate that one. Enter the values manually below.");
+    } finally {
+      setNameBusy(false);
+    }
+  }
+
+  function clearPhoto() { setPhoto(null); setAiNote(null); setAiError(null); }
+
+  function submit(e) {
+    e.preventDefault();
+    if (!form.name.trim()) { showToast("Add a food name first"); return; }
+    onAdd({
+      id: Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+      name: form.name.trim(),
+      calories: round(totals.calories),
+      protein: round(totals.protein),
+      carbs: round(totals.carbs),
+      fat: round(totals.fat),
+      ingredients: hasIng ? ingredients.map((it) => ({ name:(it.name||"Item").trim(), calories:+it.calories||0, protein:+it.protein||0, carbs:+it.carbs||0, fat:+it.fat||0 })) : [],
+      extra: aiExtra,
+      tip: aiTip,
+      photo: photo || null,
+      ts: Date.now(),
+    });
+    setForm(empty); setIngredients([]); setAiExtra(null); setAiTip(null); clearPhoto();
+    showToast("Meal added");
+  }
+
+  const hasIng = ingredients.length > 0;
+  const ingTot = ingredients.reduce((a, it) => ({ calories:a.calories+(+it.calories||0), protein:a.protein+(+it.protein||0), carbs:a.carbs+(+it.carbs||0), fat:a.fat+(+it.fat||0) }), { calories:0, protein:0, carbs:0, fat:0 });
+  const totals = hasIng ? ingTot : { calories:+form.calories||0, protein:+form.protein||0, carbs:+form.carbs||0, fat:+form.fat||0 };
+
+  return (
+    <div className="grid" style={{ gridTemplateColumns: "1fr", maxWidth: 640, margin: "0 auto" }}>
+      {/* Photo estimate */}
+      <div className="card card-pad pop">
+        <div className="card-h">
+          <h3>Snap it</h3>
+          <span className="hint" style={{ display:"flex", alignItems:"center", gap:5, color:"var(--accent)" }}>
+            {Icon.sparkle({style:{width:14,height:14}})} AI estimate
+          </span>
+        </div>
+
+        {!photo ? (
+          <div className={"drop" + (dragOver ? " over" : "")}
+            onClick={() => fileRef.current.click()}
+            onDragOver={(e)=>{e.preventDefault(); setDragOver(true);}}
+            onDragLeave={()=>setDragOver(false)}
+            onDrop={(e)=>{e.preventDefault(); setDragOver(false); handleFile(e.dataTransfer.files[0]);}}>
+            <div className="ico">{Icon.camera()}</div>
+            <h4>Add a photo of your meal</h4>
+            <p>Tap to upload or drop an image — Claude estimates the calories &amp; macros</p>
+            <input ref={fileRef} type="file" accept="image/*" capture="environment"
+              style={{ display: "none" }} onChange={(e)=>handleFile(e.target.files[0])} />
+          </div>
+        ) : (
+          <div>
+            <div className="preview">
+              <img src={photo} alt="meal" />
+              <button className="x" onClick={clearPhoto} aria-label="remove">{Icon.x()}</button>
+            </div>
+            {analyzing && <div className="analyzing"><span className="spin"></span> Analyzing your meal…</div>}
+            {aiNote && !analyzing && (
+              <div className="ai-result" style={{ marginTop: 12 }}>
+                <div className="row">{Icon.sparkle()} AI estimate</div>
+                <p>{aiNote}</p>
+              </div>
+            )}
+            {aiError && (
+              <div className="banner warn" style={{ marginTop: 12 }}>{Icon.info()}{aiError}</div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Manual / editable fields */}
+      <form className="card card-pad pop pop-2" onSubmit={submit}>
+        <div className="card-h">
+          <h3>Meal details</h3>
+          {(photo || nameNote) && <span className="hint">AI estimate · editable</span>}
+        </div>
+
+        <div className="field">
+          <label>Food name</label>
+          <div style={{ display: "flex", gap: 8 }}>
+            <input className="input" style={{ flex: 1 }} placeholder="e.g. Grilled chicken bowl"
+              value={form.name} onChange={set("name")}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); estimateFromName(); } }} />
+            <button type="button" className="btn btn-ghost" style={{ flex: "none", padding: "0 16px" }}
+              disabled={!form.name.trim() || nameBusy} onClick={estimateFromName}
+              title="Let Claude estimate calories & macros from the name">
+              {nameBusy ? <span className="spin"></span> : Icon.sparkle({ style: { width: 17, height: 17 } })}
+              <span className="lab-est">Estimate</span>
+            </button>
+          </div>
+          {nameBusy && <div className="analyzing" style={{ padding: "12px 0 2px", justifyContent: "flex-start" }}><span className="spin"></span> Estimating “{form.name.trim()}”…</div>}
+          {nameNote && !nameBusy && (
+            <div className="ai-result" style={{ marginTop: 10 }}>
+              <div className="row">{Icon.sparkle()} AI estimate</div>
+              <p>{nameNote}</p>
+            </div>
+          )}
+          {nameError && <div className="banner warn" style={{ marginTop: 10 }}>{Icon.info()}{nameError}</div>}
+        </div>
+
+        {/* Ingredients */}
+        <div style={{ marginTop: 20 }}>
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom: 10 }}>
+            <label style={{ fontSize:13, fontWeight:800, color:"var(--ink-soft)", display:"flex", alignItems:"center", gap:6 }}>
+              {Icon.leaf({style:{width:15,height:15}})} Ingredients {hasIng && <span className="count-pill">{ingredients.length}</span>}
+            </label>
+            <button type="button" className="mini-link" style={{ margin:0 }} onClick={addIng}>+ Add ingredient</button>
+          </div>
+
+          {hasIng ? (
+            <div className="ing-list">
+              <div className="ing-head">
+                <span>Item</span><span>kcal</span><span>P</span><span>C</span><span>F</span><span></span>
+              </div>
+              {ingredients.map((it, i) => (
+                <div className="ing-row" key={i}>
+                  <input className="ing-name" placeholder="Ingredient" value={it.name} onChange={(e)=>updateIng(i,"name",e.target.value)} />
+                  <input className="ing-num" type="number" inputMode="decimal" min="0" placeholder="0" value={it.calories} onChange={(e)=>updateIng(i,"calories",e.target.value)} />
+                  <input className="ing-num" type="number" inputMode="decimal" min="0" placeholder="0" value={it.protein} onChange={(e)=>updateIng(i,"protein",e.target.value)} />
+                  <input className="ing-num" type="number" inputMode="decimal" min="0" placeholder="0" value={it.carbs} onChange={(e)=>updateIng(i,"carbs",e.target.value)} />
+                  <input className="ing-num" type="number" inputMode="decimal" min="0" placeholder="0" value={it.fat} onChange={(e)=>updateIng(i,"fat",e.target.value)} />
+                  <button type="button" className="ing-del" onClick={()=>removeIng(i)} aria-label="remove ingredient">{Icon.x({style:{width:14,height:14}})}</button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="hint" style={{ margin:"2px 2px 0" }}>Estimate from a photo or name to auto-fill ingredients — or add them by hand.</p>
+          )}
+        </div>
+
+        {/* Totals */}
+        <div className="totals">
+          <div className="tot-cal">
+            <div className="k"><span className="dot" style={{ background:"var(--accent)" }}></span>Calories</div>
+            {hasIng ? (
+              <div className="v" style={{ color:"var(--accent-d)" }}>{round(totals.calories)}<small> kcal</small></div>
+            ) : (
+              <div className="input-wrap" style={{ maxWidth:170 }}>
+                <input className="input suffix-pad" type="number" inputMode="decimal" min="0" placeholder="0" value={form.calories} onChange={set("calories")} />
+                <span className="suffix">kcal</span>
+              </div>
+            )}
+          </div>
+          <div className="tot-macros">
+            {MACROS.map(m => (
+              <div className="tot-m" key={m.key}>
+                <div className="k"><span className="dot" style={{ background:m.color }}></span>{m.label}</div>
+                {hasIng ? (
+                  <div className="v">{round(totals[m.key])}<small> g</small></div>
+                ) : (
+                  <div className="input-wrap">
+                    <input className="input suffix-pad" type="number" inputMode="decimal" min="0" placeholder="0" value={form[m.key]} onChange={set(m.key)} />
+                    <span className="suffix">g</span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          {hasIng && <p className="hint" style={{ marginTop:2 }}>Totals are summed from your ingredients — edit any row to adjust.</p>}
+        </div>
+
+        <button className="btn btn-primary btn-block" style={{ marginTop: 22 }} type="submit">
+          {Icon.plus()} Add to today
+        </button>
+      </form>
+    </div>
+  );
+}
+
+
+
+/* ============ */
+
+/* Dashboard.jsx — daily summary: calorie ring, macro bars, water, history */
+
+function WaterTracker({ ml, goal, onSet }) {
+  const [custom, setCustom] = useState("");
+  const pct = goal > 0 ? Math.min(100, ml / goal * 100) : 0;
+  const left = Math.max(0, goal - ml);
+  const add = (d) => onSet((prev) => Math.max(0, Math.round((+prev || 0) + d)));
+  const addCustom = () => { const v = Math.round(+custom || 0); if (v) { add(v); setCustom(""); } };
+  return (
+    <div className="card card-pad pop pop-3">
+      <div className="card-h">
+        <h3 style={{ display:"flex", alignItems:"center", gap:8 }}>
+          <span style={{ color:"var(--water)" }}>{Icon.drop({style:{width:18,height:18}})}</span> Water
+        </h3>
+        <span className="hint">{(goal/1000).toFixed(1)} L goal</span>
+      </div>
+      <div className="water-head">
+        <div className="water-amt"><b>{ml}</b><span>/ {goal} ml</span></div>
+        <div className="water-left" style={left<=0?{color:"var(--water)"}:null}>{left > 0 ? `${left} ml to go` : "Goal reached!"}</div>
+      </div>
+      <div className="wbar"><span style={{ width: pct + "%" }}></span></div>
+      <div className="wquick">
+        {[200, 250, 330, 500].map(v => (
+          <button key={v} type="button" className="chip-add" onClick={() => add(v)}>+{v}</button>
+        ))}
+        <button type="button" className="chip-add minus" onClick={() => add(-250)} disabled={ml <= 0}>−250</button>
+      </div>
+      <div className="wcustom">
+        <div className="input-wrap" style={{ flex: 1 }}>
+          <input className="input suffix-pad" type="number" inputMode="numeric" min="0" placeholder="Custom amount"
+            value={custom} onChange={(e)=>setCustom(e.target.value)}
+            onKeyDown={(e)=>{ if(e.key==="Enter"){ e.preventDefault(); addCustom(); } }} />
+          <span className="suffix">ml</span>
+        </div>
+        <button type="button" className="btn btn-ghost" onClick={addCustom}>{Icon.plus({style:{width:16,height:16}})} Add</button>
+      </div>
+    </div>
+  );
+}
+
+function HistoryTable({ meals, onDelete }) {
+  return (
+    <div className="card card-pad pop pop-3">
+      <div className="card-h">
+        <h3>Today's meals</h3>
+        <span className="hint">{meals.length} item{meals.length === 1 ? "" : "s"}</span>
+      </div>
+      {meals.length === 0 ? (
+        <div className="empty">
+          {Icon.cal()}
+          <p>No meals logged yet.<br/>Head to <b>Add Meal</b> to start tracking.</p>
+        </div>
+      ) : (
+        <div className="meal-list">
+          {meals.slice().reverse().map(m => (
+            <div className="meal" key={m.id}>
+              <div className="meal-main">
+                <div className="meal-name">
+                  {m.photo && <img className="photo" src={m.photo} alt="" />}
+                  <span style={{ overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{m.name}</span>
+                </div>
+                <div className="meal-macros">
+                  <span className="mchip p">P {round(m.protein)}g</span>
+                  <span className="mchip c">C {round(m.carbs)}g</span>
+                  <span className="mchip f">F {round(m.fat)}g</span>
+                </div>
+              </div>
+              <div className="meal-cal">{round(m.calories)}<br/><small>kcal</small></div>
+              <button className="del" onClick={() => onDelete(m.id)} aria-label={`delete ${m.name}`}>
+                {Icon.trash()}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SmartTip({ tip, onDismiss }) {
+  if (!tip) return null;
+  return (
+    <div className="tipcard pop">
+      <div className="tip-ico">{Icon.sparkle()}</div>
+      <div className="tip-body">
+        <div className="tip-h">Smart nutrition tip{tip.name ? ` · ${tip.name}` : ""}</div>
+        {tip.loading
+          ? <div className="tip-load"><span className="spin"></span> Reading your meal…</div>
+          : <p>{tip.tip}</p>}
+      </div>
+      <button className="tip-x" onClick={onDismiss} aria-label="dismiss">{Icon.x({style:{width:15,height:15}})}</button>
+    </div>
+  );
+}
+
+const NUTRIENTS = [
+  { key:"fiber",  label:"Fiber",         unit:"g",  ref:30,   mode:"good",  color:"var(--fat)" },
+  { key:"sugar",  label:"Sugar",         unit:"g",  ref:50,   mode:"limit", color:"var(--carbs)" },
+  { key:"satFat", label:"Saturated fat", unit:"g",  ref:20,   mode:"limit", color:"var(--accent)" },
+  { key:"sodium", label:"Sodium",        unit:"mg", ref:2300, mode:"limit", color:"var(--protein)" },
+];
+function sumExtra(meals) {
+  return meals.reduce((a, m) => { const e = m.extra || {}; return {
+    fiber:a.fiber+(+e.fiber||0), sugar:a.sugar+(+e.sugar||0), sodium:a.sodium+(+e.sodium||0), satFat:a.satFat+(+e.satFat||0),
+  }; }, { fiber:0, sugar:0, sodium:0, satFat:0 });
+}
+function NutrientBreakdown({ meals }) {
+  const ex = sumExtra(meals);
+  const any = ex.fiber || ex.sugar || ex.sodium || ex.satFat;
+  return (
+    <div className="card card-pad pop pop-2">
+      <div className="card-h">
+        <h3>Today's nutrients</h3>
+        <span className="hint">vs daily reference</span>
+      </div>
+      {any ? (
+        <div className="macro-row">
+          {NUTRIENTS.map(n => {
+            const v = ex[n.key];
+            const pct = Math.min(100, n.ref ? v / n.ref * 100 : 0);
+            const over = n.mode === "limit" && v > n.ref;
+            const met = n.mode === "good" && v >= n.ref;
+            return (
+              <div className="macro" key={n.key}>
+                <div className="macro-top">
+                  <div className="macro-name">
+                    <span className="dot" style={{ background: over ? "var(--accent-d)" : n.color }}></span>{n.label}
+                    {over && <span className="nflag flag-over">over limit</span>}
+                    {met && <span className="nflag flag-good">goal met</span>}
+                  </div>
+                  <div className="macro-val"><b>{round(v)}</b> / {n.ref} {n.unit}{n.mode === "limit" ? " max" : ""}</div>
+                </div>
+                <div className="bar"><span style={{ width: pct + "%", background: over ? "var(--accent-d)" : n.color }}></span></div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="empty" style={{ padding:"24px" }}>{Icon.leaf({style:{width:38,height:38}})}<p>Log a meal to see fiber, sugar, sodium &amp; saturated fat.</p></div>
+      )}
+    </div>
+  );
+}
+
+function Dashboard({ goals, meals, onDelete, water, setWater, goToAdd, recentTip, onDismissTip }) {
+  const tot = sumMeals(meals);
+  const remaining = (+goals.calories || 0) - tot.calories;
+
+  return (
+    <div className="grid pop" style={{ gridTemplateColumns: "1fr" }}>
+      <SmartTip tip={recentTip} onDismiss={onDismissTip} />
+      <div className="dash-grid">
+        {/* Calorie ring + tiles */}
+        <div className="card card-pad">
+          <div className="card-h">
+            <h3>Calories</h3>
+            <button className="btn btn-ghost" style={{ padding:"8px 14px", fontSize:13.5 }} onClick={goToAdd}>
+              {Icon.plus({style:{width:16,height:16}})} Add
+            </button>
+          </div>
+          <div style={{ display:"grid", placeItems:"center", padding:"6px 0 18px" }}>
+            <Ring value={tot.calories} goal={+goals.calories || 0} label="eaten" unit="kcal" />
+          </div>
+          <div className="tiles">
+            <div className="tile">
+              <div className="k">Goal</div>
+              <div className="v">{round(goals.calories)}<small> kcal</small></div>
+            </div>
+            <div className="tile">
+              <div className="k">Eaten</div>
+              <div className="v">{round(tot.calories)}<small> kcal</small></div>
+            </div>
+            <div className="tile">
+              <div className="k">{remaining >= 0 ? "Left" : "Over"}</div>
+              <div className="v" style={{ color: remaining >= 0 ? "var(--fat)" : "var(--accent-d)" }}>
+                {round(Math.abs(remaining))}<small> kcal</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Macros + water */}
+        <div className="grid" style={{ gridTemplateColumns:"1fr" }}>
+          <div className="card card-pad pop pop-2">
+            <div className="card-h"><h3>Macros</h3><span className="hint">grams today</span></div>
+            <div className="macro-row">
+              {MACROS.map(m => (
+                <MacroBar key={m.key} macro={m} value={tot[m.key]} goal={+goals[m.key] || 0} />
+              ))}
+            </div>
+          </div>
+          <WaterTracker ml={water} goal={+goals.waterGoal || (goals.goalWeight ? Math.round(goals.goalWeight*35/100)*100 : 2500)} onSet={setWater} />
+        </div>
+      </div>
+
+      <NutrientBreakdown meals={meals} />
+
+      <HistoryTable meals={meals} onDelete={onDelete} />
+    </div>
+  );
+}
+
+
+
+/* ============ */
+
+/* Progress.jsx — trends, weight log, AI coach */
+
+function aggregateRange(mealsByDay, days) {
+  const out = [];
+  const today = new Date();
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(today); d.setDate(today.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    out.push({ key, date: d, ...sumMeals(mealsByDay[key] || []) });
+  }
+  return out;
+}
+
+function BarChart({ data, goal, color = "var(--accent)" }) {
+  const W = 480, H = 168, padB = 20, padT = 8;
+  const n = data.length;
+  const maxV = Math.max(goal || 0, ...data.map(d => d.calories), 1) * 1.18;
+  const slot = W / n;
+  const barW = Math.min(30, slot * 0.6);
+  const y = (v) => padT + (H - padT - padB) * (1 - v / maxV);
+  const goalY = goal ? y(goal) : null;
+  const showEvery = n > 10 ? Math.ceil(n / 8) : 1;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display:"block" }}>
+      {goalY != null && <line x1="0" x2={W} y1={goalY} y2={goalY} stroke="var(--accent)" strokeWidth="1.3" strokeDasharray="5 5" opacity="0.6" />}
+      {data.map((d, i) => {
+        const cx = slot * i + slot / 2;
+        const over = goal && d.calories > goal;
+        const yy = y(d.calories);
+        return (
+          <g key={i}>
+            <rect x={cx - barW/2} y={yy} width={barW} height={Math.max(0, H - padB - yy)} rx="4"
+              fill={d.calories ? (over ? "var(--accent-d)" : color) : "var(--line-2)"} />
+            {(i % showEvery === 0) && <text x={cx} y={H - 5} textAnchor="middle" fontSize="9" fontWeight="700" fill="var(--muted)">{d.date.getDate()}</text>}
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function LineChart({ data, color = "var(--water)" }) {
+  const W = 480, H = 150, pad = 16;
+  if (!data.length) return null;
+  const vals = data.map(d => d.kg);
+  let min = Math.min(...vals), max = Math.max(...vals);
+  const padY = (max - min) * 0.25 || 1.2; min -= padY; max += padY;
+  const x = (i) => data.length === 1 ? W/2 : pad + (W - 2*pad) * (i / (data.length - 1));
+  const y = (v) => pad + (H - 2*pad) * (1 - (v - min) / (max - min));
+  const pts = data.map((d, i) => `${x(i).toFixed(1)},${y(d.kg).toFixed(1)}`).join(" ");
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display:"block" }}>
+      <polygon points={`${pad},${H-pad} ${pts} ${W-pad},${H-pad}`} fill={color} opacity="0.1" />
+      <polyline points={pts} fill="none" stroke={color} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+      {data.map((d, i) => <circle key={i} cx={x(i)} cy={y(d.kg)} r="3.6" fill="#fff" stroke={color} strokeWidth="2.2" />)}
+    </svg>
+  );
+}
+
+function Progress({ goals, mealsByDay, weightLog, onLogWeight, showToast }) {
+  const [range, setRange] = useState(7);
+  const [wInput, setWInput] = useState("");
+  const [insight, setInsight] = usePersisted("mt.insight", null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState(null);
+
+  const data = aggregateRange(mealsByDay, range);
+  const logged = data.filter(d => d.calories > 0);
+  const avg = (k) => logged.length ? Math.round(logged.reduce((a, d) => a + d[k], 0) / logged.length) : 0;
+  const avgCal = avg("calories");
+  const calGoal = +goals.calories || 0;
+  const lastW = weightLog[weightLog.length - 1]?.kg;
+  const firstW = weightLog[0]?.kg;
+  const wChange = (firstW != null && lastW != null) ? (lastW - firstW) : 0;
+
+  async function getInsights() {
+    setBusy(true); setErr(null);
+    try {
+      const recent = aggregateRange(mealsByDay, 7).filter(d => d.calories > 0);
+      const summary = {
+        calorieGoal: calGoal, proteinGoal:+goals.protein||0, carbGoal:+goals.carbs||0, fatGoal:+goals.fat||0,
+        currentWeight:+goals.weight||0, goalWeight:+goals.goalWeight||0,
+        avgCalories: avg("calories"), avgProtein: avg("protein"), avgCarbs: avg("carbs"), avgFat: avg("fat"),
+        daysTracked: recent.length, weightTrend: weightLog.slice(-6).map(e => ({ date:e.date, kg:e.kg })),
+      };
+      const reply = await window.claude.complete({ messages: [{ role:"user", content:
+        "You are a friendly, evidence-based nutrition & fitness coach. Given this user's goals and recent tracking data, give concise personalised guidance. " +
+        "Data: " + JSON.stringify(summary) + ". " +
+        "Respond ONLY with strict minified JSON, no prose, no code fences, in this exact shape: " +
+        '{"headline":"one upbeat sentence on how they are doing","calorie":{"direction":"increase|decrease|maintain","amount":"e.g. ~200 kcal/day or none","reason":"short why"},"food":["2-4 short specific food tips"],"exercise":[{"name":"activity","detail":"short how/how often"}]}. ' +
+        "Base advice on the gap between average intake and goals and the weight trend. Keep every string short." }] });
+      const json = JSON.parse((reply.match(/\{[\s\S]*\}/) || [reply])[0]);
+      setInsight({ ...json, at: Date.now() });
+      showToast("Insights ready");
+    } catch (e) {
+      setErr("Couldn't generate insights right now. Try again in a moment.");
+    } finally { setBusy(false); }
+  }
+
+  function logWeight() {
+    const kg = +wInput;
+    if (!kg) { showToast("Enter a weight"); return; }
+    onLogWeight(Math.round(kg * 10) / 10);
+    setWInput("");
+    showToast("Weight logged");
+  }
+
+  const dirLabel = (d) => d === "increase" ? "Eat a little more" : d === "decrease" ? "Eat a little less" : "You're on track";
+
+  return (
+    <div className="grid" style={{ gridTemplateColumns:"1fr", maxWidth: 760, margin:"0 auto" }}>
+      {/* Calorie trend */}
+      <div className="card card-pad pop">
+        <div className="card-h">
+          <h3>Calorie intake</h3>
+          <div className="seg">
+            <button type="button" className={range===7?"on":""} onClick={()=>setRange(7)}>Week</button>
+            <button type="button" className={range===30?"on":""} onClick={()=>setRange(30)}>Month</button>
+          </div>
+        </div>
+        <div className="trend-head">
+          <div>
+            <div className="trend-big">{avgCal}<small> kcal</small></div>
+            <div className="trend-k">daily average</div>
+          </div>
+          <div style={{ textAlign:"right" }}>
+            {calGoal > 0 && logged.length > 0 &&
+              <div className="trend-sub" style={{ color: avgCal>calGoal ? "var(--accent-d)":"var(--fat)" }}>
+                {avgCal>calGoal ? "+" : ""}{avgCal-calGoal} vs goal
+              </div>}
+            <div className="trend-k">{logged.length} of {range} days tracked</div>
+          </div>
+        </div>
+        {logged.length ? <BarChart data={data} goal={calGoal} /> :
+          <div className="empty">{Icon.trend({style:{width:40,height:40}})}<p>No meals logged in this range yet.</p></div>}
+        {calGoal > 0 && logged.length > 0 && <div className="chart-leg"><span className="leg-dash"></span> Goal · {calGoal} kcal</div>}
+      </div>
+
+      {/* Macro averages */}
+      <div className="card card-pad pop pop-2">
+        <div className="card-h"><h3>Average macros</h3><span className="hint">last {range} days</span></div>
+        <div className="macro-row">
+          {MACROS.map(m => <MacroBar key={m.key} macro={m} value={avg(m.key)} goal={+goals[m.key]||0} />)}
+        </div>
+      </div>
+
+      {/* Weight */}
+      <div className="card card-pad pop pop-2">
+        <div className="card-h">
+          <h3>Weight</h3>
+          {weightLog.length > 1 &&
+            <span className="hint" style={{ color: wChange<=0 ? "var(--fat)":"var(--carbs)", display:"flex", alignItems:"center", gap:4 }}>
+              {wChange<=0 ? Icon.down({style:{width:14,height:14}}) : Icon.up({style:{width:14,height:14}})} {Math.abs(wChange).toFixed(1)} kg
+            </span>}
+        </div>
+        {weightLog.length ? (
+          <>
+            <div className="trend-head">
+              <div><div className="trend-big" style={{ color:"var(--water)" }}>{lastW}<small> kg</small></div><div className="trend-k">latest</div></div>
+              <div style={{ textAlign:"right" }}><div className="trend-big" style={{ fontSize:22 }}>{round(+goals.goalWeight)}<small> kg</small></div><div className="trend-k">goal</div></div>
+            </div>
+            <LineChart data={weightLog} />
+          </>
+        ) : <div className="empty" style={{ padding:"22px" }}>{Icon.gauge({style:{width:40,height:40}})}<p>Log your weight to see the trend.</p></div>}
+        <div className="wcustom" style={{ marginTop:14 }}>
+          <div className="input-wrap" style={{ flex:1 }}>
+            <input className="input suffix-pad" type="number" inputMode="decimal" min="0" placeholder="Today's weight"
+              value={wInput} onChange={(e)=>setWInput(e.target.value)} onKeyDown={(e)=>{ if(e.key==="Enter"){ e.preventDefault(); logWeight(); } }} />
+            <span className="suffix">kg</span>
+          </div>
+          <button type="button" className="btn btn-primary" onClick={logWeight}>{Icon.plus({style:{width:16,height:16}})} Log</button>
+        </div>
+        <p className="hint" style={{ marginTop:8 }}>Tip: weigh in at the same time each week for the most reliable trend.</p>
+      </div>
+
+      {/* AI coach */}
+      <div className="card card-pad pop pop-3">
+        <div className="card-h">
+          <h3 style={{ display:"flex", alignItems:"center", gap:8 }}><span style={{ color:"var(--accent)" }}>{Icon.sparkle({style:{width:18,height:18}})}</span> AI coach</h3>
+          {insight && !busy && <button type="button" className="mini-link" style={{ margin:0 }} onClick={getInsights}>Refresh</button>}
+        </div>
+        {busy && <div className="analyzing"><span className="spin"></span> Analysing your week…</div>}
+        {err && <div className="banner warn">{Icon.info()}{err}</div>}
+        {!insight && !busy && !err && (
+          <div style={{ textAlign:"center", padding:"4px 0" }}>
+            <p style={{ color:"var(--ink-soft)", fontWeight:700, fontSize:14, marginBottom:14, lineHeight:1.5 }}>
+              Get personalised guidance on eating more or less, plus exercise ideas — based on your goals and the past week.
+            </p>
+            <button type="button" className="btn btn-primary" onClick={getInsights} disabled={logged.length===0}>
+              {Icon.sparkle({style:{width:17,height:17}})} Get recommendations
+            </button>
+            {logged.length===0 && <p className="hint" style={{ marginTop:10 }}>Log a few meals first.</p>}
+          </div>
+        )}
+        {insight && !busy && (
+          <div className="coach">
+            <p className="coach-head">{insight.headline}</p>
+            {insight.calorie && (
+              <div className={"coach-cal " + (insight.calorie.direction || "maintain")}>
+                <div className="cc-ico">{insight.calorie.direction==="increase" ? Icon.up() : insight.calorie.direction==="decrease" ? Icon.down() : Icon.check()}</div>
+                <div>
+                  <div className="cc-t">{dirLabel(insight.calorie.direction)}{insight.calorie.amount && insight.calorie.amount!=="none" ? ` · ${insight.calorie.amount}` : ""}</div>
+                  <div className="cc-r">{insight.calorie.reason}</div>
+                </div>
+              </div>
+            )}
+            {Array.isArray(insight.food) && insight.food.length > 0 && (
+              <div className="coach-sec">
+                <div className="coach-sec-h">{Icon.leaf({style:{width:15,height:15}})} Food tips</div>
+                <ul className="coach-list">{insight.food.map((t, i) => <li key={i}>{t}</li>)}</ul>
+              </div>
+            )}
+            {Array.isArray(insight.exercise) && insight.exercise.length > 0 && (
+              <div className="coach-sec">
+                <div className="coach-sec-h">{Icon.dumbbell({style:{width:15,height:15}})} Exercise ideas</div>
+                <div className="coach-ex">{insight.exercise.map((e, i) => (
+                  <div className="ex" key={i}><b>{e.name}</b><span>{e.detail}</span></div>
+                ))}</div>
+              </div>
+            )}
+            <p className="hint" style={{ marginTop:2 }}>General guidance, not medical advice.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+
+/* ============ */
+
+/* App.jsx — root: tab nav + per-day state, mounts to #root */
+
+function App() {
+  const [tab, setTab] = usePersisted("mt.tab", "dash");
+  const [goals, setGoals] = usePersisted("mt.goals", DEFAULT_GOALS);
+  const [mealsByDay, setMealsByDay] = usePersisted("mt.meals", {});
+  const [waterByDay, setWaterByDay] = usePersisted("mt.water", {});
+  const [weightLog, setWeightLog] = usePersisted("mt.weightlog", []);
+  const [recentTip, setRecentTip] = useState(null);
+  const [toastNode, showToast] = useToast();
+
+  const day = todayKey();
+  const meals = mealsByDay[day] || [];
+  const water = waterByDay[day] || 0;
+
+  const addMeal = (m) => {
+    setMealsByDay((s) => ({ ...s, [day]: [...(s[day] || []), m] }));
+    setTab("dash");
+    enrichMeal(m);
+  };
+
+  // Smart Nutrition Tip + background micronutrient enrichment for each recorded meal
+  async function enrichMeal(m) {
+    if (m.tip && m.extra) { setRecentTip({ tip: m.tip, name: m.name }); return; }
+    setRecentTip({ loading: true, name: m.name });
+    try {
+      const reply = await window.claude.complete({ messages: [{ role: "user", content:
+        `A user just logged this meal: "${m.name}" (~${m.calories} kcal, protein ${m.protein}g, carbs ${m.carbs}g, fat ${m.fat}g). ` +
+        "Respond ONLY with strict minified JSON, no prose, no code fences: " +
+        '{"tip":"one short friendly, specific nutrition tip, max 16 words","extra":{"fiber":number,"sugar":number,"sodium":number,"satFat":number}}. ' +
+        "Estimate fiber, sugar, saturated fat in grams and sodium in mg for this portion." }] });
+      const j = JSON.parse((reply.match(/\{[\s\S]*\}/) || [reply])[0]);
+      setRecentTip({ tip: j.tip || "Logged! Keep balancing your plate.", name: m.name });
+      if (j.extra) {
+        const ex = { fiber:+j.extra.fiber||0, sugar:+j.extra.sugar||0, sodium:+j.extra.sodium||0, satFat:+j.extra.satFat||0 };
+        setMealsByDay((s) => ({ ...s, [day]: (s[day] || []).map((x) => x.id === m.id ? { ...x, extra: ex } : x) }));
+      }
+    } catch (e) {
+      setRecentTip({ tip: "Nice — logged! Aim for veggies and protein at your next meal.", name: m.name });
+    }
+  }
+  const deleteMeal = (id) =>
+    setMealsByDay((s) => ({ ...s, [day]: (s[day] || []).filter((x) => x.id !== id) }));
+  const setWater = (n) => setWaterByDay((s) => ({ ...s, [day]: typeof n === "function" ? Math.max(0, n(s[day] || 0)) : n }));
+  const logWeight = (kg) => {
+    const d = todayKey();
+    setWeightLog((l) => [...l.filter((e) => e.date !== d), { date: d, kg }].sort((a, b) => a.date < b.date ? -1 : 1));
+    setGoals((g) => ({ ...g, weight: kg }));
+  };
+
+  const TABS = [
+    { k: "dash",  label: "Dashboard", icon: Icon.grid },
+    { k: "add",   label: "Add Meal",  icon: Icon.plus },
+    { k: "progress", label: "Trends", icon: Icon.trend },
+    { k: "goals", label: "Goals",     icon: Icon.target },
+  ];
+
+  return (
+    <div className="app">
+      <header className="topbar">
+        <div className="brand">
+          <div className="logo">{Icon.flame()}</div>
+          <div>
+            <h1>MacroTrack</h1>
+            <div className="sub">Calorie &amp; macro tracker</div>
+          </div>
+        </div>
+        <div className="datechip">{Icon.cal()} {prettyDate()}</div>
+      </header>
+
+      <nav className="tabs">
+        {TABS.map((t) => (
+          <button key={t.k} className={"tab" + (tab === t.k ? " active" : "")} onClick={() => setTab(t.k)}>
+            {t.icon()} <span className="lab">{t.label}</span>
+          </button>
+        ))}
+      </nav>
+
+      <main key={tab}>
+        {tab === "dash" && (
+          <Dashboard goals={goals} meals={meals} onDelete={deleteMeal}
+            water={water} setWater={setWater} goToAdd={() => setTab("add")}
+            recentTip={recentTip} onDismissTip={() => setRecentTip(null)} />
+        )}
+        {tab === "add" && <AddMeal onAdd={addMeal} showToast={showToast} />}
+        {tab === "progress" && <Progress goals={goals} mealsByDay={mealsByDay} weightLog={weightLog} onLogWeight={logWeight} showToast={showToast} />}
+        {tab === "goals" && <Goals goals={goals} setGoals={setGoals} showToast={showToast} />}
+      </main>
+
+      {toastNode}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+/* ============================================================
+   Meow Track — Desktop / laptop website layer
+   Loaded AFTER meow_style.css; reuses the same tokens.
+   ============================================================ */
+
+body.web {
+  overflow: hidden;
+}
+
+/* ---- laptop scaler ---- */
+.laptop-scaler { position: fixed; top: 50%; left: 50%; transform-origin: center center; transform: translate(-50%, -50%); }
+
+/* ---- MacBook frame ---- */
+.laptop { display: flex; flex-direction: column; align-items: center; }
+.laptop-screen {
+  position: relative;
+  background: #0a0c11;
+  padding: 16px 16px 18px;
+  border-radius: 26px;
+  box-shadow: 0 0 0 2px #2a2e38, 0 40px 80px -30px rgba(0,0,0,.6);
+}
+.laptop-cam { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 7px; height: 7px; border-radius: 50%; background: #1c2027; box-shadow: inset 0 0 0 1.5px #2f343d; }
+.laptop-cam::after { content: ""; position: absolute; inset: 2px; border-radius: 50%; background: #3a4350; }
+
+.browser {
+  width: 1180px; height: 718px; border-radius: 9px; overflow: hidden;
+  background: var(--bg); display: flex; flex-direction: column;
+}
+.browser-bar {
+  height: 46px; flex: none; background: var(--surface-2); border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 14px; padding: 0 16px;
+}
+.lights { display: flex; gap: 8px; }
+.lights i { width: 12px; height: 12px; border-radius: 50%; }
+.lights i:nth-child(1){ background:#FF5F57; } .lights i:nth-child(2){ background:#FEBC2E; } .lights i:nth-child(3){ background:#28C840; }
+.b-tabs { display: flex; gap: 8px; align-items: flex-end; height: 100%; padding-top: 8px; }
+.b-tab { display: flex; align-items: center; gap: 8px; background: var(--bg); border-radius: 9px 9px 0 0; padding: 8px 14px; font-size: 12.5px; font-weight: 700; color: var(--ink); max-width: 190px; white-space: nowrap; }
+.b-tab .fav { font-size: 13px; }
+.b-address {
+  flex: 1; display: flex; align-items: center; gap: 9px; background: var(--bg);
+  border-radius: 999px; padding: 8px 15px; font-size: 13px; font-weight: 600; color: var(--ink-soft);
+  border: 1px solid var(--line); max-width: 460px; margin: 0 auto;
+}
+.b-address svg { width: 13px; height: 13px; color: var(--carbs); flex: none; }
+.b-actions { display: flex; gap: 14px; color: var(--muted); margin-left: auto; }
+.b-actions svg { width: 17px; height: 17px; }
+.browser-body { flex: 1; overflow: hidden; position: relative; }
+
+.laptop-base { position: relative; width: 1310px; height: 16px; background: linear-gradient(#d9dde3, #aab0b8 60%, #8b9099); border-radius: 0 0 12px 12px; box-shadow: 0 16px 26px -12px rgba(0,0,0,.45); }
+.laptop-base::before { content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 150px; height: 10px; background: #9197a0; border-radius: 0 0 10px 10px; }
+
+/* ============================================================
+   App layout: sidebar + main
+   ============================================================ */
+.web-app { display: grid; grid-template-columns: 246px 1fr; height: 100%; background: var(--bg); position: relative; color: var(--ink); }
+
+.web-side {
+  background: var(--surface); border-right: 1px solid var(--line);
+  display: flex; flex-direction: column; padding: 22px 16px 18px;
+}
+.web-brand { display: flex; align-items: center; gap: 11px; padding: 4px 8px 20px; }
+.web-brand .logo { width: 38px; height: 38px; border-radius: 11px; background: linear-gradient(135deg, var(--accent), var(--yellow)); display: grid; place-items: center; font-size: 21px; flex: none; }
+.web-brand .bn { font-size: 18px; font-weight: 800; letter-spacing: -.02em; }
+.web-brand .bs { font-size: 11.5px; font-weight: 700; color: var(--muted); margin-top: -2px; }
+
+.web-add { width: 100%; margin-bottom: 18px; }
+
+.web-nav { display: flex; flex-direction: column; gap: 4px; }
+.web-nav button {
+  display: flex; align-items: center; gap: 13px; padding: 12px 14px; border-radius: 13px;
+  font-weight: 700; font-size: 15px; color: var(--ink-soft); transition: background .14s, color .14s; text-align: left;
+}
+.web-nav button svg { width: 21px; height: 21px; flex: none; }
+.web-nav button:hover { background: var(--well); color: var(--ink); }
+.web-nav button.on { background: var(--accent-wash); color: var(--accent-d); }
+.web-nav button.on svg { color: var(--accent); }
+
+.web-side-foot { margin-top: auto; display: flex; flex-direction: column; gap: 12px; padding-top: 16px; }
+.web-toggles { display: flex; gap: 8px; }
+.web-toggles .seg { flex: 1; }
+.web-toggles .seg button { padding: 9px 6px; font-size: 12.5px; display: flex; align-items: center; justify-content: center; gap: 5px; }
+.web-toggles .seg button svg { width: 14px; height: 14px; }
+.web-profile { display: flex; align-items: center; gap: 11px; padding: 11px; border-radius: 14px; background: var(--well); cursor: pointer; transition: background .14s; }
+.web-profile:hover { background: var(--line-2); }
+.web-profile .av { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--yellow)); display: grid; place-items: center; font-size: 20px; flex: none; }
+.web-profile .pn { font-weight: 800; font-size: 14.5px; }
+.web-profile .ps { font-size: 12px; font-weight: 600; color: var(--ink-soft); }
+
+/* ---- main ---- */
+.web-main { overflow-y: auto; scrollbar-width: thin; }
+.web-main::-webkit-scrollbar { width: 10px; }
+.web-main::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 999px; border: 3px solid var(--bg); }
+.web-page { padding: 26px 36px 48px; max-width: 1180px; margin: 0 auto; }
+
+.web-topbar { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 26px; }
+.web-topbar .tt { font-size: 30px; font-weight: 800; letter-spacing: -.03em; }
+.web-topbar .td { font-size: 14px; font-weight: 700; color: var(--ink-soft); margin-top: 3px; }
+.web-topbar .actions { display: flex; align-items: center; gap: 12px; }
+
+.go-prem { display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px; border-radius: 13px; font-weight: 800; font-size: 14px; color: #fff; background: linear-gradient(120deg, var(--accent), var(--yellow)); box-shadow: 0 8px 18px -8px var(--accent); }
+.go-prem svg { width: 16px; height: 16px; }
+
+.streak-chip { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 13px; background: var(--surface); border: 1px solid var(--line-2); font-weight: 800; font-size: 14px; box-shadow: var(--shadow-sm); }
+
+/* ============================================================
+   Grids
+   ============================================================ */
+.web-cols { display: grid; grid-template-columns: 1.6fr 1fr; gap: 22px; align-items: start; }
+.web-cols > .col { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+.web-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; align-items: start; }
+.web-2 .span2 { grid-column: 1 / -1; }
+.web-diary { display: grid; grid-template-columns: 360px 1fr; gap: 24px; align-items: start; }
+
+.web-main .card { padding: 24px; }
+.web-main .card-h h3 { font-size: 21px; }
+.web-main .section-h { font-size: 20px; }
+
+/* big calorie hero */
+.cal-hero { display: grid; grid-template-columns: auto 1fr; gap: 30px; align-items: center; }
+.cal-hero .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 14px; }
+
+/* nutrition row of three radials sits naturally; make bars wider */
+.web-main .macro3 { gap: 14px; }
+
+/* meal cards on diary */
+.web-day-strip { display: flex; gap: 8px; }
+.web-day-strip button { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 12px 4px; border-radius: 14px; border: 2px solid var(--line); background: var(--surface); transition: all .14s; }
+.web-day-strip button .dn { font-size: 12.5px; font-weight: 800; color: var(--muted); }
+.web-day-strip button .dd { font-size: 17px; font-weight: 800; }
+.web-day-strip button.on { border-color: var(--accent); background: var(--accent-wash); }
+.web-day-strip button.on .dn, .web-day-strip button.on .dd { color: var(--accent-d); }
+.web-day-strip button:disabled { opacity: .45; }
+
+/* ============================================================
+   Add modal
+   ============================================================ */
+.web-modal-scrim { position: absolute; inset: 0; z-index: 80; background: var(--scrim); display: grid; place-items: center; opacity: 0; pointer-events: none; transition: opacity .22s; padding: 30px; }
+.web-modal-scrim.show { opacity: 1; pointer-events: auto; }
+.web-modal { width: 560px; max-width: 100%; max-height: 90%; background: var(--surface); border-radius: 24px; overflow: hidden; display: flex; flex-direction: column; box-shadow: var(--shadow-lg); transform: scale(.96) translateY(8px); transition: transform .24s cubic-bezier(.22,1,.36,1); }
+.web-modal-scrim.show .web-modal { transform: none; }
+.web-modal-h { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid var(--line); flex: none; }
+.web-modal-h h3 { font-size: 20px; }
+.web-modal-body { overflow-y: auto; padding: 22px; scrollbar-width: thin; }
+.web-modal-body::-webkit-scrollbar { width: 8px; }
+.web-modal-body::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 999px; }
+
+/* onboarding centered */
+.ob-web-wrap { position: absolute; inset: 0; display: grid; place-items: center; overflow: auto; padding: 28px;
+  background: radial-gradient(900px 500px at 20% -5%, var(--accent-wash), transparent 60%), radial-gradient(800px 500px at 110% 10%, var(--yellow-wash), transparent 55%), var(--bg); }
+.ob-web { width: 470px; max-width: 100%; background: var(--surface); border-radius: 28px; box-shadow: var(--shadow-lg); padding: 36px 36px 32px; }
+.ob.ob-bare { padding: 0; min-height: auto; display: block; }
+.ob.ob-bare .ob-prog { margin-bottom: 24px; }
+
+/* desktop add quick grid spacing tweak */
+.web-modal-body .qa-grid { gap: 14px; }
+.web-modal-body .qa .ico { width: 70px; height: 70px; }
+
+/* food ideas on web shouldn't stretch weirdly */
+.web-main .referral { padding: 22px; }
